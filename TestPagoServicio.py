@@ -49,6 +49,12 @@ class Test(unittest.TestCase):
         self.tarifa.tasasem = 20
         self.assertEqual(51*self.tarifa.tasasem, calcularPrecio(self.tarifa, self.tiempodeservicio))
     
+    #Prueba calculo de la tarifa trabajando solo dias de semana
+    def test_SoloSemana2(self):
+        self.tiempodeservicio = [datetime.datetime(2018,5,9,13,20),datetime.datetime(2018,5,11,9,15)]
+        self.tarifa.tasasem = 20
+        self.assertEqual(45*self.tarifa.tasasem, calcularPrecio(self.tarifa, self.tiempodeservicio))
+    
     #Prueba calculo de la tarifa trabajando solo dias del fin de semana
     def test_FinSemana(self):
         self.tiempodeservicio = [datetime.datetime(2018,5,12,13,20),datetime.datetime(2018,5,13,15,40)]
