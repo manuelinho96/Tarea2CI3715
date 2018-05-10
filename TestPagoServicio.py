@@ -71,6 +71,14 @@ class Test(unittest.TestCase):
         self.tarifa.tasasem = 30
         self.suma = 59*self.tarifa.tasasem + 37*self.tarifa.tasafinsem
         self.assertEqual(self.suma, calcularPrecio(self.tarifa, self.tiempodeservicio))
+    
+    #Prueba para calcular la tarifa si se empieza un dia del fin de semana y se termina un dia de la semana
+    def test_DiaFinSemySem(self):
+        self.tiempodeservicio = [datetime.datetime(2018,5,13,12,20),datetime.datetime(2018,5,16,14,2)]
+        self.tarifa.tasafinsem = 20
+        self.tarifa.tasasem = 30
+        self.suma = 63*self.tarifa.tasasem + 12*self.tarifa.tasafinsem
+        self.assertEqual(self.suma, calcularPrecio(self.tarifa, self.tiempodeservicio))
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

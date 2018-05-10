@@ -85,4 +85,17 @@ def calcularPrecio(tarifa, tiempodeServicio: datetime):
             else:
                 horasFinSem += tiempodeServicio[1].hour
             tarifaTotal = horasSem*tarifa.tasasem + horasFinSem*tarifa.tasafinsem 
+            return tarifaTotal
+        
+        # Se empieza un dia del fin de semana y se termina en un dia de la semana
+        else:
+            diasfinsem = 6 - tiempodeServicio[0].weekday()
+            horasFinSem = diasfinsem*24
+            horasFinSem += 24-tiempodeServicio[0].hour
+            horasSem = tiempodeServicio[1].weekday()*24
+            if(tiempodeServicio[1].minute != 0):
+                horasSem += tiempodeServicio[1].hour + 1
+            else:
+                horasSem += tiempodeServicio[1].hour
+            tarifaTotal = horasSem*tarifa.tasasem + horasFinSem*tarifa.tasafinsem 
             return tarifaTotal   
