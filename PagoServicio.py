@@ -14,7 +14,7 @@ def cantidadhoras(tiempodeServicio):
     if((tiempodeServicio[1].minute - tiempodeServicio[0].minute) > 0):
         return tiempodeServicio[1].hour - tiempodeServicio[0].hour + 1
     else:
-        return tiempodeServicio[1].hour - tiempodeServicio[0].hour
+        return abs(tiempodeServicio[1].hour - tiempodeServicio[0].hour)
     
 # Funcion que dado una tarifa y un tiempo de servicio
 # Calcula el monto a pagar por un servicio
@@ -57,4 +57,32 @@ def calcularPrecio(tarifa, tiempodeServicio: datetime):
                 return horas*tarifa.tasasem
             # Trabajo solo el fin de semana
             else:
-                return horas*tarifa.tasafinsem   
+                return horas*tarifa.tasafinsem
+    # Casos que involucran fin de semana
+    else:
+        # Se trabajo el fin de semana completo
+        if(tiempodeServicio[0].weekday() < 5 and tiempodeServicio[1].weekday() < 5):
+            horasFinSem = 48
+            tarifaFinSem = horasFinSem*tarifa.tasafinsem
+            horasSem = 24-tiempodeServicio[0].hour
+            horasSem += 24*((tiempodeServicio[1].day - tiempodeServicio[0].day)-3)
+            if(tiempodeServicio[1].minute != 0):
+                horasSem += tiempodeServicio[1].hour + 1
+            else:
+                horasSem += tiempodeServicio[1].hour
+            tarifaSem = horasSem*tarifa.tasasem
+            return tarifaSem + tarifaFinSem
+        # Se empieza un dia de semana pero se termina un dia de fin de semana
+        elif(tiempodeServicio[0].weekday() < 5):
+            dias = 4 - tiempodeServicio[0].weekday()
+            horasSem = dias*24
+            horasSem += 24 - tiempodeServicio[0].hour
+            horasFinSem = 0
+            if(tiempodeServicio[1].weekday() == 6):
+                horasFinSem = 24
+            if(tiempodeServicio[1].minute != 0):
+                horasFinSem += tiempodeServicio[1].hour + 1
+            else:
+                horasFinSem += tiempodeServicio[1].hour
+            tarifaTotal = horasSem*tarifa.tasasem + horasFinSem*tarifa.tasafinsem 
+            return tarifaTotal   

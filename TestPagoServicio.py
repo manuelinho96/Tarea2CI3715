@@ -45,9 +45,9 @@ class Test(unittest.TestCase):
         
     #Prueba calculo de la tarifa trabajando solo dias de semana
     def test_SoloSemana(self):
-        self.tiempodeservicio = [datetime.datetime(2018,5,9,13,20),datetime.datetime(2018,5,11,15,0)]
+        self.tiempodeservicio = [datetime.datetime(2018,5,9,13,20),datetime.datetime(2018,5,11,15,21)]
         self.tarifa.tasasem = 20
-        self.assertEqual(50*self.tarifa.tasasem, calcularPrecio(self.tarifa, self.tiempodeservicio))
+        self.assertEqual(51*self.tarifa.tasasem, calcularPrecio(self.tarifa, self.tiempodeservicio))
     
     #Prueba calculo de la tarifa trabajando solo dias del fin de semana
     def test_FinSemana(self):
@@ -55,7 +55,22 @@ class Test(unittest.TestCase):
         self.tarifa.tasafinsem = 20
         self.suma = 27*self.tarifa.tasafinsem
         self.assertEqual(self.suma, calcularPrecio(self.tarifa, self.tiempodeservicio))
-
+    
+    #Prueba para calcular la tarifa si se empieza un dia de semana y se termina un dia de semana (completo fin de semana)
+    def test_DiaSemyDiaSem(self):
+        self.tiempodeservicio = [datetime.datetime(2018,5,10,12,10),datetime.datetime(2018,5,15,12,2)]
+        self.tarifa.tasafinsem = 20
+        self.tarifa.tasasem = 30
+        self.suma = 73*self.tarifa.tasasem + 48*self.tarifa.tasafinsem
+        self.assertEqual(self.suma, calcularPrecio(self.tarifa, self.tiempodeservicio))
+    
+    #Prueba para calcular la tarifa si se empieza un dia de semana y se termina un domingo
+    def test_DiaSemyFinSem2(self):
+        self.tiempodeservicio = [datetime.datetime(2018,5,9,13,20),datetime.datetime(2018,5,13,12,2)]
+        self.tarifa.tasafinsem = 20
+        self.tarifa.tasasem = 30
+        self.suma = 59*self.tarifa.tasasem + 37*self.tarifa.tasafinsem
+        self.assertEqual(self.suma, calcularPrecio(self.tarifa, self.tiempodeservicio))
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
