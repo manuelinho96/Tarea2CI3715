@@ -25,7 +25,9 @@ def calcularPrecio(tarifa, tiempodeServicio: datetime):
         print("La tarifa no debe ser negativa")
         return -1
     try:
-        assert((tiempodeServicio[1]-tiempodeServicio[0]).days <= 7)
+        assert((tiempodeServicio[1]-tiempodeServicio[0]).days < 7
+               or ((tiempodeServicio[1]-tiempodeServicio[0]).days == 7) and 
+               ((tiempodeServicio[1]-tiempodeServicio[0]).seconds == 0))
     except:
         print("El servicio dura mas de 7 dias")
         return -2
@@ -37,10 +39,7 @@ def calcularPrecio(tarifa, tiempodeServicio: datetime):
     
     #Caso en el que el dia de inicio y el final son el mismo
     if(tiempodeServicio[1].day == tiempodeServicio[0].day):
-        if (cantidadhoras(tiempodeServicio)):
-            horas = (tiempodeServicio[1].hour-tiempodeServicio[0].hour)+1
-        else:
-            horas = tiempodeServicio[1].hour-tiempodeServicio[0].hour
+        horas = cantidadhoras(tiempodeServicio)
         if(tiempodeServicio[0].weekday() < 5):
             return horas*tarifa.tasasem
         else:
@@ -50,7 +49,7 @@ def calcularPrecio(tarifa, tiempodeServicio: datetime):
     #Caso en el que el intervalo contiene solo dias de semana
     if (((tiempodeServicio[0].weekday() <= 4 and tiempodeServicio[1].weekday() <= 4) or 
         ((tiempodeServicio[0].weekday() > 4 and tiempodeServicio[1].weekday() > 4)))
-        and (tiempodeServicio[1].weekday() >= tiempodeServicio[0].weekday())):
+        and (tiempodeServicio[1].weekday() > tiempodeServicio[0].weekday())):
             horas = cantidadhoras(tiempodeServicio)
             horas += 24*((tiempodeServicio[1]-tiempodeServicio[0]).days)
             # Trabajo durante la semana
@@ -67,7 +66,7 @@ def calcularPrecio(tarifa, tiempodeServicio: datetime):
             tarifaFinSem = horasFinSem*tarifa.tasafinsem
             horasSem = 24-tiempodeServicio[0].hour
             horasSem += 24*((tiempodeServicio[1].day - tiempodeServicio[0].day)-3)
-            if(tiempodeServicio[1].minute != 0):
+            if(tiempodeServicio[1].minute > tiempodeServicio[0].minute):
                 horasSem += tiempodeServicio[1].hour + 1
             else:
                 horasSem += tiempodeServicio[1].hour
@@ -81,7 +80,7 @@ def calcularPrecio(tarifa, tiempodeServicio: datetime):
             horasFinSem = 0
             if(tiempodeServicio[1].weekday() == 6):
                 horasFinSem = 24
-            if(tiempodeServicio[1].minute != 0):
+            if(tiempodeServicio[1].minute > tiempodeServicio[0].minute):
                 horasFinSem += tiempodeServicio[1].hour + 1
             else:
                 horasFinSem += tiempodeServicio[1].hour
@@ -89,14 +88,32 @@ def calcularPrecio(tarifa, tiempodeServicio: datetime):
             return tarifaTotal
         
         # Se empieza un dia del fin de semana y se termina en un dia de la semana
-        else:
+        elif(tiempodeServicio[1].weekday() <= 4):
             diasfinsem = 6 - tiempodeServicio[0].weekday()
             horasFinSem = diasfinsem*24
             horasFinSem += 24-tiempodeServicio[0].hour
             horasSem = tiempodeServicio[1].weekday()*24
-            if(tiempodeServicio[1].minute != 0):
+            if(tiempodeServicio[1].minute > tiempodeServicio[0].minute):
                 horasSem += tiempodeServicio[1].hour + 1
             else:
                 horasSem += tiempodeServicio[1].hour
             tarifaTotal = horasSem*tarifa.tasasem + horasFinSem*tarifa.tasafinsem 
-            return tarifaTotal   
+            return tarifaTotal
+        # Se empieza un dia del fin de semana y se termina en un dia del fin de semana (semana completa)
+        else:
+            horasSem = 120
+            if(tiempodeServicio[0].weekday() == 5):
+                diasfinsem = 1
+                horasFinSem = diasfinsem*24
+                horasFinSem += 24-tiempodeServicio[0].hour
+            else:
+                horasFinSem = 24-tiempodeServicio[0].hour
+                if(tiempodeServicio[1].weekday() == 6):
+                    horasFinSem += 24
+            if(tiempodeServicio[1].minute > tiempodeServicio[0].minute):
+                horasFinSem += tiempodeServicio[1].hour + 1
+            else:
+                horasFinSem += tiempodeServicio[1].hour
+            tarifaTotal = horasSem*tarifa.tasasem + horasFinSem*tarifa.tasafinsem 
+            return tarifaTotal
+               
