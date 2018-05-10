@@ -37,6 +37,20 @@ class Test(unittest.TestCase):
         self.tarifa.tasafinsem = 20
         self.assertTrue(calcularPrecio(self.tarifa, self.tiempodeservicio) == -3, "Fecha final posterior a la inicial")
     
+    #Probar los casos en que el intervalo dura exactamente 15 minutos
+    def test_exactoMinTiempo(self):
+        self.tiempodeservicio = [datetime.datetime(2018,5,11,13,20),datetime.datetime(2018,5,11,13,36)]
+        self.tarifa.tasasem = 20
+        self.assertEqual(20, calcularPrecio(self.tarifa, self.tiempodeservicio))
+
+    #Probar los casos en que el intervalo dura exactamente7 dias
+    def test_exactoMaxTiempo(self):
+        self.tiempodeservicio = [datetime.datetime(2018,5,11,13,15),datetime.datetime(2018,5,18,13,15)]
+        self.tarifa.tasasem = 30
+        self.tarifa.tasafinsem = 20
+        self.sumaTotal = 120*self.tarifa.tasasem + 48*self.tarifa.tasafinsem
+        self.assertEqual(self.sumaTotal, calcularPrecio(self.tarifa, self.tiempodeservicio))
+        
     #Probar que se redondea a un hora los minutos sobrantes
     def test_RedondearMismoDia(self):
         self.tiempodeservicio = [datetime.datetime(2017,2,3,13,20),datetime.datetime(2017,2,3,15,40)]
@@ -51,9 +65,9 @@ class Test(unittest.TestCase):
     
     #Prueba calculo de la tarifa trabajando solo dias de semana
     def test_SoloSemana2(self):
-        self.tiempodeservicio = [datetime.datetime(2018,5,9,13,20),datetime.datetime(2018,5,11,9,15)]
+        self.tiempodeservicio = [datetime.datetime(2018,5,9,13,20),datetime.datetime(2018,5,11,14,15)]
         self.tarifa.tasasem = 20
-        self.assertEqual(45*self.tarifa.tasasem, calcularPrecio(self.tarifa, self.tiempodeservicio))
+        self.assertEqual(49*self.tarifa.tasasem, calcularPrecio(self.tarifa, self.tiempodeservicio))
     
     #Prueba calculo de la tarifa trabajando solo dias del fin de semana
     def test_FinSemana(self):
@@ -67,12 +81,12 @@ class Test(unittest.TestCase):
         self.tiempodeservicio = [datetime.datetime(2018,5,10,12,10),datetime.datetime(2018,5,15,12,2)]
         self.tarifa.tasafinsem = 20
         self.tarifa.tasasem = 30
-        self.suma = 73*self.tarifa.tasasem + 48*self.tarifa.tasafinsem
+        self.suma = 72*self.tarifa.tasasem + 48*self.tarifa.tasafinsem
         self.assertEqual(self.suma, calcularPrecio(self.tarifa, self.tiempodeservicio))
     
     #Prueba para calcular la tarifa si se empieza un dia de semana y se termina un domingo
     def test_DiaSemyFinSem2(self):
-        self.tiempodeservicio = [datetime.datetime(2018,5,9,13,20),datetime.datetime(2018,5,13,12,2)]
+        self.tiempodeservicio = [datetime.datetime(2018,5,9,13,20),datetime.datetime(2018,5,13,12,22)]
         self.tarifa.tasafinsem = 20
         self.tarifa.tasasem = 30
         self.suma = 59*self.tarifa.tasasem + 37*self.tarifa.tasafinsem
@@ -83,8 +97,79 @@ class Test(unittest.TestCase):
         self.tiempodeservicio = [datetime.datetime(2018,5,13,12,20),datetime.datetime(2018,5,16,14,2)]
         self.tarifa.tasafinsem = 20
         self.tarifa.tasasem = 30
-        self.suma = 63*self.tarifa.tasasem + 12*self.tarifa.tasafinsem
+        self.suma = 62*self.tarifa.tasasem + 12*self.tarifa.tasafinsem
         self.assertEqual(self.suma, calcularPrecio(self.tarifa, self.tiempodeservicio))
+    
+    #Prueba para calcular la tarifa si el intervalo comienza y termina en dia de semana e incluye
+    #fin de año    
+    def test_FinAnoDiaSem(self):
+        self.tiempodeservicio = [datetime.datetime(2018,12,31,12,0),datetime.datetime(2019,1,1,12,0)]
+        self.tarifa.tasafinsem = 20
+        self.tarifa.tasasem = 30
+        self.suma = 24*self.tarifa.tasasem
+        self.assertEqual(self.suma, calcularPrecio(self.tarifa, self.tiempodeservicio))
+    
+    #Prueba para calcular la tarifa si el intervalo comienza en fin de semana y termina en dia de semana 
+    #e incluye fin de año        
+    def test_FinAnoFinSem(self):
+        self.tiempodeservicio = [datetime.datetime(2018,12,29,12,0),datetime.datetime(2019,1,1,12,0)]
+        self.tarifa.tasafinsem = 20
+        self.tarifa.tasasem = 30
+        self.sumaSem = 36*self.tarifa.tasasem
+        self.sumaFinSem = 36*self.tarifa.tasafinsem
+        self.suma = self.sumaSem + self.sumaFinSem
+        self.assertEqual(self.suma, calcularPrecio(self.tarifa, self.tiempodeservicio))
+        
+    #Prueba para calcular la tarifa si el intervalo comienza y termina en dia de semana e incluye
+    #cambio de mes
+    def test_FinMesDiaSem(self):
+        self.tiempodeservicio = [datetime.datetime(2018,5,30,12,0),datetime.datetime(2018,6,1,12,0)]
+        self.tarifa.tasasem = 30
+        self.sumaSem = 48*self.tarifa.tasasem
+        self.assertEqual(self.sumaSem, calcularPrecio(self.tarifa, self.tiempodeservicio))    
+     
+    #Prueba para calcular la tarifa si el intervalo comienza en dia de semana y termina en fin de semana
+    #e incluye cambio de mes   
+    def test_FinMesFinSem(self):
+        self.tiempodeservicio = [datetime.datetime(2018,5,31,12,0),datetime.datetime(2018,6,3,12,0)]
+        self.tarifa.tasafinsem = 20
+        self.tarifa.tasasem = 30
+        self.sumaSem = 36*self.tarifa.tasasem
+        self.sumaFinSem = 36*self.tarifa.tasafinsem
+        self.suma = self.sumaSem + self.sumaFinSem
+        self.assertEqual(self.suma, calcularPrecio(self.tarifa, self.tiempodeservicio))       
+        
+    #Prueba para calcular la tarifa si el intervalo comienza y termina en fin de semana e incluye
+    #fin de mes
+    def test_FinMesFinSem2(self):
+        self.tiempodeservicio = [datetime.datetime(2018,6,30,12,0),datetime.datetime(2018,7,1,12,0)]
+        self.tarifa.tasafinsem = 20
+        self.sumaSem = 24*self.tarifa.tasafinsem
+        self.assertEqual(self.sumaSem, calcularPrecio(self.tarifa, self.tiempodeservicio))
+    
+    #Prueba en la que el intervalo comprende exactamente una semana, comenzando y terminando un sabado
+    def test_MaxTiempoFin(self):
+        self.tiempodeservicio = [datetime.datetime(2018,5,12,12,0),datetime.datetime(2018,5,19,12,0)]
+        self.tarifa.tasasem = 30
+        self.tarifa.tasafinsem = 20
+        self.sumaTotal = 120*self.tarifa.tasasem + 48*self.tarifa.tasafinsem
+        self.assertEqual(self.sumaTotal, calcularPrecio(self.tarifa, self.tiempodeservicio))
+    
+    #Prueba en la que el intervalo comienza y termina en fin de semana
+    def test_MaxTiempoFin2(self):
+        self.tiempodeservicio = [datetime.datetime(2018,5,13,12,0),datetime.datetime(2018,5,19,12,0)]
+        self.tarifa.tasasem = 30
+        self.tarifa.tasafinsem = 20
+        self.sumaTotal = 120*self.tarifa.tasasem + 24*self.tarifa.tasafinsem
+        self.assertEqual(self.sumaTotal, calcularPrecio(self.tarifa, self.tiempodeservicio))
+    
+    #Prueba en la que el intervalo comprende exactamente una semana, comenzando y terminando un domingo
+    def test_MaxTiempoFin3(self):
+        self.tiempodeservicio = [datetime.datetime(2018,5,13,12,0),datetime.datetime(2018,5,20,12,0)]
+        self.tarifa.tasasem = 30
+        self.tarifa.tasafinsem = 20
+        self.sumaTotal = 120*self.tarifa.tasasem + 48*self.tarifa.tasafinsem
+        self.assertEqual(self.sumaTotal, calcularPrecio(self.tarifa, self.tiempodeservicio))     
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
