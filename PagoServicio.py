@@ -50,8 +50,12 @@ def calcularPrecio(tarifa, tiempodeServicio: datetime):
     if (((tiempodeServicio[0].weekday() <= 4 and tiempodeServicio[1].weekday() <= 4) or 
         ((tiempodeServicio[0].weekday() > 4 and tiempodeServicio[1].weekday() > 4)))
         and (tiempodeServicio[1].weekday() >= tiempodeServicio[0].weekday())):
-            horas = cantidadhoras(tiempodeServicio)
-            horas += 24*(tiempodeServicio[1].day - tiempodeServicio[0].day)
+            horas = 24 - tiempodeServicio[0].hour
+            horas += 24*((tiempodeServicio[1].day - tiempodeServicio[0].day)-1)
+            if(tiempodeServicio[1].minute != 0):
+                horas += tiempodeServicio[1].hour + 1
+            else:
+                horas += tiempodeServicio[1].hour
             # Trabajo durante la semana
             if(tiempodeServicio[0].weekday() < 5):
                 return horas*tarifa.tasasem
