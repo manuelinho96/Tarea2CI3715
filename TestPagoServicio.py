@@ -79,14 +79,15 @@ class Test(unittest.TestCase):
         self.tarifa.tasasem = 30
         self.suma = 63*self.tarifa.tasasem + 12*self.tarifa.tasafinsem
         self.assertEqual(self.suma, calcularPrecio(self.tarifa, self.tiempodeservicio))
-    def test_FinDiaSem(self):
+        
+    def test_FinAnoDiaSem(self):
         self.tiempodeservicio = [datetime.datetime(2018,12,31,12,0),datetime.datetime(2019,1,1,12,0)]
         self.tarifa.tasafinsem = 20
         self.tarifa.tasasem = 30
         self.suma = 24*self.tarifa.tasasem
         self.assertEqual(self.suma, calcularPrecio(self.tarifa, self.tiempodeservicio))
         
-    def test_FinFinSem(self):
+    def test_FinAnoFinSem(self):
         self.tiempodeservicio = [datetime.datetime(2018,12,29,12,0),datetime.datetime(2019,1,1,12,0)]
         self.tarifa.tasafinsem = 20
         self.tarifa.tasasem = 30
@@ -94,6 +95,27 @@ class Test(unittest.TestCase):
         self.sumaFinSem = 36*self.tarifa.tasafinsem
         self.suma = self.sumaSem + self.sumaFinSem
         self.assertEqual(self.suma, calcularPrecio(self.tarifa, self.tiempodeservicio))
+        
+    def test_FinMesDiaSem(self):
+        self.tiempodeservicio = [datetime.datetime(2018,5,30,12,0),datetime.datetime(2018,6,1,12,0)]
+        self.tarifa.tasasem = 30
+        self.sumaSem = 48*self.tarifa.tasasem
+        self.assertEqual(self.sumaSem, calcularPrecio(self.tarifa, self.tiempodeservicio))    
+        
+    def test_FinMesFinSem(self):
+        self.tiempodeservicio = [datetime.datetime(2018,5,31,12,0),datetime.datetime(2018,6,3,12,0)]
+        self.tarifa.tasafinsem = 20
+        self.tarifa.tasasem = 30
+        self.sumaSem = 36*self.tarifa.tasasem
+        self.sumaFinSem = 36*self.tarifa.tasafinsem
+        self.suma = self.sumaSem + self.sumaFinSem
+        self.assertEqual(self.suma, calcularPrecio(self.tarifa, self.tiempodeservicio))       
+        
+    def test_FinMesFinSem2(self):
+        self.tiempodeservicio = [datetime.datetime(2018,6,30,12,0),datetime.datetime(2018,7,1,12,0)]
+        self.tarifa.tasafinsem = 20
+        self.sumaSem = 24*self.tarifa.tasafinsem
+        self.assertEqual(self.sumaSem, calcularPrecio(self.tarifa, self.tiempodeservicio))     
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
