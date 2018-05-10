@@ -9,6 +9,13 @@ class Tarifa:
         self.tasasem = 0
         self.tasafinsem = 0
 
+#Funcion que dado un tiempo de servicio redondea las horas
+def cantidadhoras(tiempodeServicio):
+    if((tiempodeServicio[1].minute - tiempodeServicio[0].minute) > 0):
+        return tiempodeServicio[1].hour - tiempodeServicio[0].hour + 1
+    else:
+        return tiempodeServicio[1].hour - tiempodeServicio[0].hour
+    
 # Funcion que dado una tarifa y un tiempo de servicio
 # Calcula el monto a pagar por un servicio
 def calcularPrecio(tarifa, tiempodeServicio: datetime):
@@ -27,3 +34,27 @@ def calcularPrecio(tarifa, tiempodeServicio: datetime):
     except:
         print("El servicio dura menos de 15 minutos")
         return -3
+    
+    #Caso en el que el dia de inicio y el final son el mismo
+    if(tiempodeServicio[1].day == tiempodeServicio[0].day):
+        if (cantidadhoras(tiempodeServicio)):
+            horas = (tiempodeServicio[1].hour-tiempodeServicio[0].hour)+1
+        else:
+            horas = tiempodeServicio[1].hour-tiempodeServicio[0].hour
+        if(tiempodeServicio[0].weekday() < 5):
+            return horas*tarifa.tasasem
+        else:
+            return horas*tarifa.tasafinsem
+        
+    #Caso en el que el dia de inicio y final son ditintos
+    if (((tiempodeServicio[0].weekday() <= 4 and tiempodeServicio[1].weekday() <= 4) or 
+        ((tiempodeServicio[0].weekday() > 4 and tiempodeServicio[1].weekday() > 4)))
+        and (tiempodeServicio[1].weekday() >= tiempodeServicio[0].weekday())):
+            horas = cantidadhoras(tiempodeServicio)
+            horas += 24*(tiempodeServicio[1].day - tiempodeServicio[0].day)
+            # Trabajo durante la semana
+            if(tiempodeServicio[0].weekday() < 5):
+                return horas*tarifa.tasasem
+            # Trabajo solo el fin de semana
+            else:
+                return horas*tarifa.tasafinsem   
